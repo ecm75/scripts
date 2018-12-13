@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/local/rvm/rubies/ruby-2.2.4/bin/ruby
 
 require 'net/http'
 require 'json'
@@ -9,17 +9,20 @@ require './_parser.inc.rb'
 @idb_apikey = 'xxxxxxxxxxxxxxxxxxxx'
 @oxi_url = "https://oxidized.example.com"
 
-DEBUG = false
+$debug = false
+if ARGV.include? '-d'
+	$debug = true
+end
 
 # get all oxidized nodes
 def oxidized_get_node_list()
-	puts "oxidized_get_node_list()" if DEBUG == true
+	puts "oxidized_get_node_list()" if $debug == true
 	url = "#{@oxi_url}/nodes?format=json"
 	uri = URI(url)
     response = Net::HTTP.get(uri)
 	data = JSON.parse(response)
 	if data.length > 0
-		puts data if DEBUG
+		puts data if $debug
 		return data
 	else
 		return nil
@@ -28,13 +31,13 @@ end
 
 # fetch node info from oxidized
 def oxidized_get_node_info(name)
-	puts "oxidized_get_node_info(name)" if DEBUG
+	puts "oxidized_get_node_info(name)" if $debug
 	url = "#{@oxi_url}/node/show/#{name}?format=json"
 	uri = URI(url)
 	response = Net::HTTP.get(uri)
 	data = JSON.parse(response)
 	if data.length > 0 && data['name'] != ''
-		puts data if DEBUG
+		puts data if $debug
 		return data
 	else
         return nil
@@ -43,7 +46,7 @@ end
 
 #fetch node configuration from oxidized
 def oxidized_get_node_config(node)
-	puts "oxidized_get_node_config(node)" if DEBUG
+	puts "oxidized_get_node_config(node)" if $debug
 	if node['name'] !~ /(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/ && node['name'] !~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 		puts " #{node['name']} is not a valid FQDN!"
 		return false
@@ -52,7 +55,7 @@ def oxidized_get_node_config(node)
 	uri = URI(url)
 	data = Net::HTTP.get(uri)
 	if data && data != ''
-#		puts data if DEBUG
+#		puts data if $debug
 		return data
 	else
 		return nil
@@ -61,7 +64,7 @@ end
 
 # put node info into IDB
 def idb_put_node_info(node, data)
-	puts "idb_put_node_info(node, data)" if DEBUG
+	puts "idb_put_node_info(node, data)" if $debug
 	uri = URI.parse("#{@idb_url}/api/v3/machines/#{node['name']}")
 	http = Net::HTTP.new(uri.host, uri.port)
 	http.use_ssl = true
@@ -79,6 +82,7 @@ def idb_put_node_info(node, data)
 end
 
 parser = Parser.new
+
 nodes = oxidized_get_node_list()
 nodes.each do |node|
 	config = "";
@@ -90,7 +94,7 @@ nodes.each do |node|
 			puts "   parsed config. updating IDB..."
 			idb_put_node_info(node, data)
 		else
-			puts "  unable to parse config, skipping update."
+			puts "  unable to parse config, nothing to update."
 		end
 	end
 	puts

@@ -10,7 +10,7 @@ module Ios
 		disksize = 0
 
 		if config.match(/(^! Cisco I.*)^version/m)
-			desc = $1.strip.gsub(/\n/, "  \n").gsub(/^! /, '')
+			desc = $1.strip.gsub(/^! /, '').gsub(/^!$/, '').gsub(/^\n$/, '')
 		end
 
 		if config.match(/Memory: main (\d+)/)
@@ -49,12 +49,12 @@ module Ios
 			version = $2.strip
 		end
 
-		puts "version: #{version}, model: #{model}, ram: #{memory}, serial: #{serial}, disksize: #{disksize}, cpu: #{cpu}" if DEBUG
-		puts "desc: #{desc}" if DEBUG
+		puts "version: #{version}, model: #{model}, ram: #{memory}, serial: #{serial}, disksize: #{disksize}, cpu: #{cpu}" if $debug
+		puts "desc: #{desc}" if $debug
 
 		if (version != '' && serial != '' && model != '')
-			data = {"os_release" => "#{version}", "arch" => "#{model}", "ram" => "#{memory}", "serialnumber" => "#{serial}", "diskspace" => "#{disksize}", "description" => "#{desc}"}
-			puts " #{data}" if DEBUG
+			data = {"os_release" => "#{version}", "arch" => "#{model}", "ram" => "#{memory}", "serialnumber" => "#{serial}", "diskspace" => "#{disksize}", "description" => "```\n#{desc}\n```"}
+			puts " #{data}" if $debug
 			return data
 		else
 			return {}

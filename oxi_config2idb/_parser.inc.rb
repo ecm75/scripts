@@ -1,19 +1,20 @@
+#!/usr/local/rvm/rubies/ruby-2.2.4/bin/ruby
+
 class Parser
-	@models = []
+	@@models = []
+
 	Dir[File.join(__dir__, 'model', '*.rb')].each do |file|
 		require file
-		@models.push($model)
+		@@models.push($model)
 		include(Kernel.const_get($model))
 	end
 
 	def parse(node, config)
 		data = {}
 		model = node['model'].downcase
-
 		if self.respond_to?(model)
-            data = self.send(model, config)
+  		data = self.send(model, config)
 		end
-
 		return data
 	end
 end
