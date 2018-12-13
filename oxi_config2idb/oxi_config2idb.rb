@@ -1,4 +1,4 @@
-#!/usr/local/rvm/rubies/ruby-2.2.4/bin/ruby
+#!/usr/bin/ruby
 
 require 'net/http'
 require 'json'
