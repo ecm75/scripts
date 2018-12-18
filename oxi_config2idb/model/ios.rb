@@ -8,6 +8,7 @@ module Ios
 		cpu = ''
 		memory = 0
 		disksize = 0
+        desc = ''
 
 		if config.match(/(^! Cisco I.*)^version/m)
 			desc = $1.strip.gsub(/^! /, '').gsub(/^!$/, '').gsub(/^\n$/, '')
